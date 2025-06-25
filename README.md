@@ -1,4 +1,4 @@
-# BMW Touring Segment Dashboard
+# BMW Segment Dashboard
 
 This project contains a React dashboard that displays data generated from markdown reports, featuring interactive visualizations, competitor analysis, and PDF report viewing capabilities.
 
