@@ -84,6 +84,18 @@ npm run generate-market-introductions
    - Zoom controls
    - Page navigation
 
+## Report Vector Store
+
+Upload the PDFs in `vector_reports/` to an OpenAI vector store so the chat
+assistant can reference them.
+
+```bash
+node scripts/upload_report_vectors.js
+```
+
+The script prints a vector store ID. Add this ID to your `.env` file as
+`VS_REPORT_STORE_ID`.
+
 ## Running the Dashboard
 
 1. Start the development server:
