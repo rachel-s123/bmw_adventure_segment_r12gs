@@ -8,6 +8,12 @@ const openai = new OpenAI({
 // Prefer VS_STORE_ID but allow fallback to the client-side variable
 const VECTOR_STORE_ID =
   process.env.VS_STORE_ID || process.env.REACT_APP_VS_STORE_ID;
+const REPORT_VECTOR_STORE_ID =
+  process.env.VS_REPORT_STORE_ID || process.env.REACT_APP_VS_REPORT_STORE_ID;
+
+const VECTOR_STORE_IDS = REPORT_VECTOR_STORE_ID
+  ? [VECTOR_STORE_ID, REPORT_VECTOR_STORE_ID]
+  : [VECTOR_STORE_ID];
 
 module.exports = async (req, res) => {
   // Set CORS headers
@@ -61,7 +67,7 @@ module.exports = async (req, res) => {
         tools: [{ type: "file_search" }],
         tool_resources: {
           file_search: {
-            vector_store_ids: [VECTOR_STORE_ID],
+            vector_store_ids: VECTOR_STORE_IDS,
           },
         },
       });
@@ -104,7 +110,7 @@ module.exports = async (req, res) => {
     // Prepare messages with vector store context
     const systemMessage = getSystemMessage();
     if (contextFromVectorStore) {
-      systemMessage.content += `\n\nRelevant information from vector store ${VECTOR_STORE_ID}:\n${contextFromVectorStore}`;
+      systemMessage.content += `\n\nRelevant information from vector store ${VECTOR_STORE_IDS.join(", ")}:\n${contextFromVectorStore}`;
     }
 
     // Create streaming response using Chat Completions
