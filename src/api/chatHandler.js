@@ -10,6 +10,12 @@ const openai = new OpenAI({
 
 const VECTOR_STORE_ID =
   process.env.REACT_APP_VS_STORE_ID || process.env.VS_STORE_ID;
+const REPORT_VECTOR_STORE_ID =
+  process.env.REACT_APP_VS_REPORT_STORE_ID || process.env.VS_REPORT_STORE_ID;
+
+const VECTOR_STORE_IDS = REPORT_VECTOR_STORE_ID
+  ? [VECTOR_STORE_ID, REPORT_VECTOR_STORE_ID]
+  : [VECTOR_STORE_ID];
 
 export const handleChatRequest = async (messages) => {
   try {
@@ -31,7 +37,7 @@ export const handleChatRequest = async (messages) => {
       tools: [{ type: "file_search" }],
       tool_resources: {
         file_search: {
-          vector_store_ids: [VECTOR_STORE_ID],
+          vector_store_ids: VECTOR_STORE_IDS,
         },
       },
     });

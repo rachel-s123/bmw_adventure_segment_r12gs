@@ -55,6 +55,7 @@ Make sure your `.env` file contains:
 ```
 OPENAI_API_KEY=your_openai_api_key_here
 VS_STORE_ID=your_vector_store_id_here
+VS_REPORT_STORE_ID=your_report_vector_store_id_here
 ```
 
 ### Running the Application

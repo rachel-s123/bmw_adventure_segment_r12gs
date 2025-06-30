@@ -25,6 +25,12 @@ const openai = new OpenAI({
 // Prefer VS_STORE_ID but fall back to REACT_APP_VS_STORE_ID for client and server environments
 const VECTOR_STORE_ID =
   process.env.VS_STORE_ID || process.env.REACT_APP_VS_STORE_ID;
+const REPORT_VECTOR_STORE_ID =
+  process.env.VS_REPORT_STORE_ID || process.env.REACT_APP_VS_REPORT_STORE_ID;
+
+const VECTOR_STORE_IDS = REPORT_VECTOR_STORE_ID
+  ? [VECTOR_STORE_ID, REPORT_VECTOR_STORE_ID]
+  : [VECTOR_STORE_ID];
 
 // Test chat endpoint (simple, no vector store)
 app.post("/api/test-chat", async (req, res) => {
@@ -98,7 +104,10 @@ app.post("/api/chat", async (req, res) => {
     // Search vector store for relevant context
     let contextFromVectorStore = "";
     try {
-      console.log("Starting vector store search with ID:", VECTOR_STORE_ID);
+      console.log(
+        "Starting vector store search with IDs:",
+        VECTOR_STORE_IDS.join(", ")
+      );
       
       // Add timeout to vector store search
       const searchTimeout = setTimeout(() => {
@@ -115,7 +124,7 @@ app.post("/api/chat", async (req, res) => {
         tools: [{ type: "file_search" }],
         tool_resources: {
           file_search: {
-            vector_store_ids: [VECTOR_STORE_ID],
+            vector_store_ids: VECTOR_STORE_IDS,
           },
         },
       });
@@ -171,7 +180,7 @@ app.post("/api/chat", async (req, res) => {
     // Prepare messages with vector store context
     const systemMessage = getSystemMessage();
     if (contextFromVectorStore) {
-      systemMessage.content += `\n\nRelevant information from vector store ${VECTOR_STORE_ID}:\n${contextFromVectorStore}`;
+      systemMessage.content += `\n\nRelevant information from vector store ${VECTOR_STORE_IDS.join(", ")}:\n${contextFromVectorStore}`;
     }
 
     // Create streaming response using Chat Completions
@@ -235,7 +244,12 @@ if (process.env.NODE_ENV !== 'production') {
       `📊 Vector Store ID configured: ${process.env.VS_STORE_ID ? "Yes" : "No"}`
     );
     console.log(
-      `🎯 Vector Store ID: ${process.env.VS_STORE_ID || "Not configured"}`
+      `📊 Report Store ID configured: ${
+        process.env.VS_REPORT_STORE_ID ? "Yes" : "No"
+      }`
+    );
+    console.log(
+      `🎯 Vector Store IDs: ${VECTOR_STORE_IDS.join(", ")}`
     );
     console.log(
       `🤖 AI Model: ${require("./ai/system-prompt").getAIConfig().model}`
