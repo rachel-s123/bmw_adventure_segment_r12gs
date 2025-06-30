@@ -58,6 +58,16 @@ VS_STORE_ID=your_vector_store_id_here
 VS_REPORT_STORE_ID=your_report_vector_store_id_here
 ```
 
+### Uploading Report PDFs
+
+Create a vector store containing the PDFs from `vector_reports/`:
+
+```bash
+node scripts/upload_report_vectors.js
+```
+
+Copy the returned ID into `.env` as `VS_REPORT_STORE_ID`.
+
 ### Running the Application
 
 #### Development Mode (React only)
