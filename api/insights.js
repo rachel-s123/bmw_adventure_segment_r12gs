@@ -91,6 +91,9 @@ async function generateAIInsights(filteredData, activeFilters, section) {
     console.log("🔍 Vector Store Query:", query); // Debug log for the query
     reportContext = await retrieveReportContext(query);
     console.log("🔍 Retrieved Report Context:", reportContext); // Debug log for the retrieved context
+    if (!reportContext) {
+      reportContext = "No relevant context found in market reports.";
+    }
   } catch (ctxErr) {
     console.log("Report context retrieval failed:", ctxErr.message);
   }
@@ -696,8 +699,26 @@ function buildReportQuery(filteredData, activeFilters) {
     ? `weeks ${filteredData.timeRange.start}-${filteredData.timeRange.end}`
     : "";
 
+  // Extract explicit theme and sentiment filters if provided
+  const themeFilter = activeFilters.find(f => f.type === 'theme')?.value;
+  const sentimentFilter = activeFilters.find(f => f.type === 'sentiment')?.value;
+
   let query = `Context for filters: ${filterDesc}`;
-  if (topTheme) query += ` focusing on theme ${topTheme}`;
+
+  const theme = themeFilter || topTheme;
+  const sentiment = sentimentFilter;
+
+  if (theme && sentiment) {
+    query += ` focusing on ${theme} discussions with ${sentiment} sentiment`;
+  } else if (theme) {
+    query += ` focusing on ${theme} discussions`;
+  } else if (sentiment) {
+    query += ` with ${sentiment} sentiment focus`;
+  } else if (topTheme) {
+    // If theme filter not provided but a top theme exists
+    query += ` focusing on theme ${topTheme}`;
+  }
+
   if (timeRange) query += ` during ${timeRange}`;
   return query;
 }
