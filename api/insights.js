@@ -200,7 +200,7 @@ function buildEnhancedInsightsPrompt(filteredData, activeFilters, section, repor
     ? `\n\nADDITIONAL CONTEXT FROM MARKET REPORTS:\n${reportContext}`
     : "";
 
-  return `Analyze consumer conversations about the BMW R 12 G/S motorcycle:
+  const basePrompt = `Analyze consumer conversations about the BMW R 12 G/S motorcycle:
 
 FILTER CONTEXT & DATA SUBSET:
 ${filterDescription}
@@ -223,6 +223,9 @@ ANALYSIS REQUIREMENTS:
 SAMPLE QUOTE ANALYSIS:
 ${generateSampleQuoteAnalysis(filteredData)}
 
+QUOTE LIST:
+${generateQuoteList(filteredData)}
+
 Please provide strategic insights that go beyond surface-level observations. Focus on:
 - What specific actions should product, marketing, or customer experience teams take?
 - Which consumer segments are most/least satisfied and why?
@@ -230,6 +233,14 @@ Please provide strategic insights that go beyond surface-level observations. Foc
 - What emerging trends or opportunities can be capitalized on?
 
 Return a detailed JSON analysis following the specified format.${additionalContextSection}`;
+
+  const tokenEstimate = Math.ceil(basePrompt.length / 4);
+  const MAX_PROMPT_TOKENS = 120000;
+  console.log('🔍 Prompt token estimate:', tokenEstimate);
+  if (tokenEstimate > MAX_PROMPT_TOKENS) {
+    console.warn(`Prompt size (${tokenEstimate} tokens) may exceed the model context limit`);
+  }
+  return basePrompt;
 }
 
 /**
@@ -309,9 +320,20 @@ function generateSampleQuoteAnalysis(filteredData) {
     }
   }
   
-  return sampleQuotes.map((quote, idx) => 
+  return sampleQuotes.map((quote, idx) =>
     `Quote ${idx + 1} (${quote.sentiment} - ${quote.theme}): "${quote.text}"${quote.tags.length ? ` [Tags: ${quote.tags.join(', ')}]` : ''}`
   ).join('\n');
+}
+
+/**
+ * Generate a formatted list of quotes for the prompt
+ */
+function generateQuoteList(filteredData) {
+  const quotes = filteredData.quotes || [];
+  if (quotes.length === 0) return "No quotes available";
+  return quotes
+    .map(q => `- "${q.text}" (${q.sentiment || 'Unknown'}, ${q.theme || 'General'})`)
+    .join('\n');
 }
 
 /**
