@@ -122,6 +122,9 @@ async function generateAIInsights(filteredData, activeFilters, section) {
   });
 
   const content = response.choices[0].message.content;
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('📝 Full AI insights response:', content);
+  }
   return parseEnhancedInsightsResponse(content);
 }
 
