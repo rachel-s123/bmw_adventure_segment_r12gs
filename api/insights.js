@@ -195,7 +195,13 @@ function buildEnhancedInsightsPrompt(filteredData, activeFilters, section, repor
   const filterDescription = describeActiveFilters(activeFilters);
   const dataStats = generateDataStatistics(filteredData);
   const contextualInfo = generateContextualAnalysis(filteredData, activeFilters);
-  
+
+  // Include up to 10 quotes but keep prompt within reasonable token limits
+  let quoteAnalysis = generateSampleQuoteAnalysis(filteredData, 10);
+  if (quoteAnalysis.length > 1500) {
+    quoteAnalysis = quoteAnalysis.slice(0, 1497) + '...';
+  }
+
   const additionalContextSection = reportContext
     ? `\n\nADDITIONAL CONTEXT FROM MARKET REPORTS:\n${reportContext}`
     : "";
@@ -221,7 +227,7 @@ ANALYSIS REQUIREMENTS:
 5. Provide timeline-specific recommendations (quick wins vs. long-term strategy)
 
 SAMPLE QUOTE ANALYSIS:
-${generateSampleQuoteAnalysis(filteredData)}
+${quoteAnalysis}
 
 Please provide strategic insights that go beyond surface-level observations. Focus on:
 - What specific actions should product, marketing, or customer experience teams take?
@@ -275,33 +281,36 @@ function generateContextualAnalysis(filteredData, activeFilters) {
 
 /**
  * Generate sample quote analysis to guide AI reasoning
+ * maxQuotes limits the number of quotes returned to avoid prompt bloat
  */
-function generateSampleQuoteAnalysis(filteredData) {
+function generateSampleQuoteAnalysis(filteredData, maxQuotes = 10) {
   const quotes = filteredData.quotes || [];
   if (quotes.length === 0) return "No sample quotes available for analysis";
-  
-  // Select diverse sample quotes (max 3)
+
+  // Select diverse sample quotes (max defined by maxQuotes)
   const sampleQuotes = [];
   const sentiments = ['Positive', 'Negative', 'Neutral'];
-  
+
   sentiments.forEach(sentiment => {
     const quote = quotes.find(q => q.sentiment === sentiment);
-    if (quote && sampleQuotes.length < 3) {
+    if (quote && sampleQuotes.length < maxQuotes) {
+      const text = quote.text.length > 200 ? `${quote.text.slice(0, 197)}...` : quote.text;
       sampleQuotes.push({
-        text: quote.text,
+        text,
         sentiment: quote.sentiment,
         theme: quote.theme || 'General',
         tags: quote.tags || []
       });
     }
   });
-  
+
   // If we don't have enough diverse quotes, fill with any available
-  while (sampleQuotes.length < 3 && sampleQuotes.length < quotes.length) {
+  while (sampleQuotes.length < maxQuotes && sampleQuotes.length < quotes.length) {
     const quote = quotes[sampleQuotes.length];
     if (!sampleQuotes.find(sq => sq.text === quote.text)) {
+      const text = quote.text.length > 200 ? `${quote.text.slice(0, 197)}...` : quote.text;
       sampleQuotes.push({
-        text: quote.text,
+        text,
         sentiment: quote.sentiment,
         theme: quote.theme || 'General',
         tags: quote.tags || []
