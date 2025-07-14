@@ -14,13 +14,13 @@ import "./styles/fonts.css";
 import DashboardIntro from "./components/DashboardIntro";
 import AttributeHeatmap from "./components/AttributeHeatmap";
 import MarketSelector from "./components/MarketSelector";
+import ModelSelector from "./components/ModelSelector";
 import ConversationInsights from "./components/ConversationInsights";
 import CompetitorAnalysis from "./components/CompetitorAnalysis";
-import ExecutiveSummary from "./components/ExecutiveSummary";
+import Overview from "./components/Overview";
 import MarketWRIScoreCards from "./components/MarketWRIScoreCards";
 import WRIStrategicDirection from "./components/WRIStrategicDirection";
 import AttributeResonanceDefinition from "./components/AttributeResonanceDefinition";
-import MarketRecommendations from "./components/MarketRecommendations";
 import AIChatPanel from "./components/AIChatPanel";
 import AIFloatingButton from "./components/AIFloatingButton";
 import bmwLogo from "./assets/bmw-black.jpg";
@@ -47,12 +47,17 @@ function TabPanel(props) {
 
 function App() {
   const [selectedMarket, setSelectedMarket] = useState("france");
+  const [selectedModel, setSelectedModel] = useState("r_12_gs");
   const [currentTab, setCurrentTab] = useState(0);
   const [loggedIn, setLoggedIn] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
+  };
+
+  const handleModelChange = (newModel) => {
+    setSelectedModel(newModel);
   };
 
   const handleChatToggle = () => {
@@ -146,6 +151,10 @@ function App() {
                 selectedMarket={selectedMarket}
                 onMarketChange={setSelectedMarket}
               />
+              <ModelSelector
+                selectedModel={selectedModel}
+                onModelChange={handleModelChange}
+              />
             </Box>
 
             <Paper sx={{ mb: 3 }}>
@@ -172,53 +181,49 @@ function App() {
                 }}
               >
                 <Tab label="Market Overview" />
-                <Tab label="Executive Summary" />
+                <Tab label="Overview" />
                 <Tab label="Attribute Resonance" />
                 <Tab label="Market Insights" />
                 <Tab label="Competitor Analysis" />
-                <Tab label="Recommendations" />
                 <Tab label="R 12 G/S Consumer Conversations" />
               </Tabs>
             </Paper>
 
             <TabPanel value={currentTab} index={0}>
-              <DashboardIntro selectedMarket={selectedMarket} />
+              <DashboardIntro selectedMarket={selectedMarket} selectedModel={selectedModel} />
             </TabPanel>
 
             <TabPanel value={currentTab} index={1}>
-              <ExecutiveSummary selectedMarket={selectedMarket} />
+              <Overview selectedMarket={selectedMarket} selectedModel={selectedModel} />
             </TabPanel>
 
             <TabPanel value={currentTab} index={2}>
               <AttributeResonanceDefinition selectedMarket={selectedMarket} />
               <Box sx={{ mt: 4 }}>
-                <MarketWRIScoreCards selectedMarket={selectedMarket} />
+                <MarketWRIScoreCards selectedMarket={selectedMarket} selectedModel={selectedModel} />
               </Box>
               <Box sx={{ mt: 4 }}>
-                <AttributeHeatmap selectedMarket={selectedMarket} />
+                <AttributeHeatmap selectedMarket={selectedMarket} selectedModel={selectedModel} />
               </Box>
               <Box sx={{ mt: 4 }}>
-                <WRIStrategicDirection selectedMarket={selectedMarket} />
+                <WRIStrategicDirection selectedMarket={selectedMarket} selectedModel={selectedModel} />
               </Box>
             </TabPanel>
 
             <TabPanel value={currentTab} index={3}>
-              <ConversationInsights selectedMarket={selectedMarket} />
+              <ConversationInsights selectedMarket={selectedMarket} selectedModel={selectedModel} />
             </TabPanel>
 
             <TabPanel value={currentTab} index={4}>
-              <CompetitorAnalysis selectedMarket={selectedMarket} />
+              <CompetitorAnalysis selectedMarket={selectedMarket} selectedModel={selectedModel} />
             </TabPanel>
 
             <TabPanel value={currentTab} index={5}>
-              <MarketRecommendations selectedMarket={selectedMarket} />
-            </TabPanel>
-
-            <TabPanel value={currentTab} index={6}>
               <Suspense fallback={<div>Loading...</div>}>
                 <R12GSConsumerAnalysis
-                  key={selectedMarket}
+                  key={`${selectedMarket}-${selectedModel}`}
                   selectedMarket={selectedMarket}
+                  selectedModel={selectedModel}
                   data={r12gsConsumerData}
                 />
               </Suspense>
