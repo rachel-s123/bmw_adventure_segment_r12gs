@@ -1,12 +1,9 @@
 import React from 'react';
 import { FormControl, InputLabel, Select, MenuItem, Box } from '@mui/material';
-import { modelInsights } from '../data/modelInsights';
+import { modelData } from '../data/modelData';
 
-const ModelSelector = ({ selectedMarket, selectedModel, onModelChange }) => {
-  // Only show models that exist for the selected market
-  const models = Object.keys(modelInsights)
-    .filter(key => key.toLowerCase().startsWith(`${selectedMarket.toLowerCase()}-`))
-    .map(key => key.replace(new RegExp(`^${selectedMarket}-`, 'i'), ''));
+const ModelSelector = ({ selectedModel, onModelChange }) => {
+  const models = modelData.models;
 
   return (
     <Box sx={{ mb: 4 }}>
